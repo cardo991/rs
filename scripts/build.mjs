@@ -1,0 +1,14 @@
+import {mkdir,copyFile,writeFile,rm} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {products} from '../catalog.js';
+const root=new URL('../',import.meta.url);
+const dist=new URL('dist/',root);
+await rm(dist,{recursive:true,force:true});
+await mkdir(new URL('assets/',dist),{recursive:true});
+await mkdir(new URL('vendor/',dist),{recursive:true});
+const files=['index.html','styles.css','premium.css','app.js','catalog.js','experience.js','vendor/three.module.js','vendor/three.core.js','vendor/THREE-LICENSE.txt'];
+const images=new Set(['logo.png','deposito-1002.png',...products.map(p=>p.image)]);
+for(const name of images)files.push('assets/'+name);
+for(const file of files)await copyFile(new URL(file,root),new URL(file,dist));
+await writeFile(new URL('.nojekyll',dist),'');
+console.log('Web lista para publicar: '+fileURLToPath(dist)+' ('+files.length+' archivos)');
